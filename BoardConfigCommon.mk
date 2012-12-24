@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-TARGET_SPECIFIC_HEADER_PATH := device/htc/msm8660-common/include
+TARGET_SPECIFIC_HEADER_PATH := device/xiaomi/msm8660-common/include
 
 # Bootloader
 TARGET_NO_BOOTLOADER := true
@@ -69,21 +69,14 @@ BOARD_VENDOR_QCOM_GPS_LOC_API_AMSS_VERSION := 50000
 USE_OPENGL_RENDERER := true
 TARGET_HAVE_BYPASS := false
 TARGET_USES_C2D_COMPOSITION := true
-TARGET_USES_OVERLAY := true
-TARGET_QCOM_HDMI_OUT := true
-TARGET_QCOM_HDMI_RESOLUTION_AUTO := true
-BOARD_EGL_CFG := device/htc/msm8660-common/configs/egl.cfg
-
-# Camera
-BOARD_HAVE_HTC_FFC := true
-COMMON_GLOBAL_CFLAGS += -DNO_UPDATE_PREVIEW
+BOARD_EGL_CFG := device/xiaomi/msm8660-common/configs/egl.cfg
 
 # Filesystem
 BOARD_VOLD_MAX_PARTITIONS := 36
 
 # FM Radio
-#BOARD_HAVE_FM_RADIO := true
-#BOARD_GLOBAL_CFLAGS += -DHAVE_FM_RADIO
+BOARD_HAVE_FM_RADIO := true
+BOARD_GLOBAL_CFLAGS += -DHAVE_FM_RADIO
 
 # Webkit
 ENABLE_WEBGL := true
@@ -93,4 +86,4 @@ DYNAMIC_SHARED_LIBV8SO := true
 # Bootanimation
 TARGET_BOOTANIMATION_PRELOAD := true
 
-TARGET_KERNEL_SOURCE := kernel/htc/msm8660
+TARGET_KERNEL_SOURCE := kernel/xiaomi/msm8660
