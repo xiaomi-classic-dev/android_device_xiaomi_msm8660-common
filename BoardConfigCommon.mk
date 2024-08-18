@@ -14,13 +14,8 @@
 
 BOARD_VENDOR := xiaomi
 
-TARGET_SPECIFIC_HEADER_PATH := device/xiaomi/msm8660-common/include
-
 # Bootloader
 TARGET_NO_BOOTLOADER := true
-
-# Kernel
-TARGET_KERNEL_SOURCE := kernel/xiaomi/msm8660
 
 # Platform
 TARGET_BOARD_PLATFORM := msm8660
