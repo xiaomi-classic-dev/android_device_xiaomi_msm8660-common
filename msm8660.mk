@@ -108,6 +108,15 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     libnetcmdiface \
     crda
+
+# WiFi
+PRODUCT_PACKAGES += \
+    dhcpcd.conf \
+    hostapd \
+    hostapd_default.conf \
+    wpa_supplicant \
+    wpa_supplicant.conf
+
 # Media configuration
 PRODUCT_COPY_FILES += \
     device/xiaomi/msm8660-common/configs/media_codecs.xml:system/etc/media_codecs.xml \
