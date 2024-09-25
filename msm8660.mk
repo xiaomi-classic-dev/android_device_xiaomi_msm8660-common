@@ -45,6 +45,10 @@ PRODUCT_PACKAGES += \
     libaudio-resampler \
     libaudioutils
 
+# GPS
+PRODUCT_PACKAGES += \
+    gps.mione
+
 # Graphics
 PRODUCT_PACKAGES += \
     camera.msm8660 \
