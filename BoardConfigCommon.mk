@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+COMMON_PATH := device/xiaomi/msm8660-common
 BOARD_VENDOR := xiaomi
 
 # Bootloader
@@ -84,6 +85,8 @@ COMMON_GLOBAL_CFLAGS += -DDISABLE_HW_ID_MATCH_CHECK
 
 # GPS
 BOARD_USES_QCOM_GPS := true
+TARGET_GPS_HAL_PATH := $(COMMON_PATH)/gps
+BOARD_VENDOR_QCOM_GPS_LOC_API_HARDWARE := mione
 BOARD_VENDOR_QCOM_GPS_LOC_API_AMSS_VERSION := 50000
 
 # Webkit
