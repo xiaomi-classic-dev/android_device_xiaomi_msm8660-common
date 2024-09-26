@@ -70,6 +70,10 @@ PRODUCT_PACKAGES += \
     libqdutils \
     libtilerenderer
 
+# Qcom
+PRODUCT_PACKAGES += \
+    libstlport
+
 # OMX
 PRODUCT_PACKAGES += \
     libc2dcolorconvert \
