@@ -79,9 +79,6 @@ COMMON_GLOBAL_CFLAGS += -DDISABLE_HW_ID_MATCH_CHECK
 # Misc
 BOARD_USES_LEGACY_MMAP := true
 
-# Use dlmalloc
-MALLOC_IMPL := dlmalloc
-
 # SELinux
 -include device/qcom/sepolicy/sepolicy.mk
 
