@@ -67,6 +67,10 @@ PRODUCT_PACKAGES += \
     liboverlay \
     libqdutils
 
+# Qcom
+PRODUCT_PACKAGES += \
+    libstlport
+
 # OMX
 PRODUCT_PACKAGES += \
     libc2dcolorconvert \
