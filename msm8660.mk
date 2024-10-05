@@ -106,7 +106,8 @@ PRODUCT_PACKAGES += \
 
 # Camera wrapper
 PRODUCT_PACKAGES += \
-    camera.msm8660
+    camera.msm8660 \
+    libshim_camera
 
 # IPv6 tethering
 PRODUCT_PACKAGES += \
