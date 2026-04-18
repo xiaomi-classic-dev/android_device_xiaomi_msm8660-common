@@ -42,6 +42,7 @@ const char KEY_VIDEO_HDR_VALUES[] = "video-hdr-values";
 static android::Mutex gCameraWrapperLock;
 static camera_module_t *gVendorModule = 0;
 
+static char **fixed_set_params = NULL;
 static char *currentVideoSize = NULL;
 
 static int camera_device_open(const hw_module_t *module, const char *name,
@@ -109,6 +110,21 @@ static char *camera_fixup_getparams(int id, const char *settings)
     params.dump();
 #endif
 
+    /* Old QCOM blobs are fragile around newer Camera2 defaults. */
+    params.set(android::CameraParameters::KEY_MAX_NUM_DETECTED_FACES_HW, "0");
+    params.set(android::CameraParameters::KEY_MAX_NUM_DETECTED_FACES_SW, "0");
+    params.set(android::CameraParameters::KEY_FACE_DETECTION, "off");
+    params.set(android::CameraParameters::KEY_VIDEO_SNAPSHOT_SUPPORTED, "false");
+    params.set(android::CameraParameters::KEY_SUPPORTED_DENOISE, "off");
+    params.set("scene-detect", "on");
+
+    const char *focusAreas = params.get(android::CameraParameters::KEY_FOCUS_AREAS);
+    if (focusAreas && strcmp(focusAreas, "(0,0,0,0,0)")) {
+        params.set("caf-focus-mode", "touch");
+    } else {
+        params.set("caf-focus-mode", "default");
+    }
+
     /* Back Camera */
     if (id == 0) {
         // Set focus mode values (infinity is blurry so remove it)
@@ -162,6 +178,20 @@ static char *camera_fixup_setparams(int id, const char *settings, struct camera_
     params.dump();
 #endif
 
+    params.set(android::CameraParameters::KEY_MAX_NUM_DETECTED_FACES_HW, "0");
+    params.set(android::CameraParameters::KEY_MAX_NUM_DETECTED_FACES_SW, "0");
+    params.set(android::CameraParameters::KEY_FACE_DETECTION, "off");
+    params.set(android::CameraParameters::KEY_VIDEO_SNAPSHOT_SUPPORTED, "false");
+    params.set(android::CameraParameters::KEY_SUPPORTED_DENOISE, "off");
+    params.set("scene-detect", "on");
+
+    const char *focusAreas = params.get(android::CameraParameters::KEY_FOCUS_AREAS);
+    if (focusAreas && strcmp(focusAreas, "(0,0,0,0,0)")) {
+        params.set("caf-focus-mode", "touch");
+    } else {
+        params.set("caf-focus-mode", "default");
+    }
+
     if (params.get(android::CameraParameters::KEY_RECORDING_HINT)) {
         isVideo = !strcmp(params.get(android::CameraParameters::KEY_RECORDING_HINT), "true");
     }
@@ -175,6 +205,15 @@ static char *camera_fixup_setparams(int id, const char *settings, struct camera_
     }
 
     if (params.get(android::CameraParameters::KEY_VIDEO_SIZE)) {
+        videoSize = params.get(android::CameraParameters::KEY_VIDEO_SIZE);
+    }
+
+    /*
+     * Camera app often keeps a 720p video-size while entering still preview.
+     * On legacy msm8660 blobs this can break preview buffer registration.
+     */
+    if (!isVideo && params.get(android::CameraParameters::KEY_PREVIEW_SIZE)) {
+        params.set(android::CameraParameters::KEY_VIDEO_SIZE, previewSize);
         videoSize = params.get(android::CameraParameters::KEY_VIDEO_SIZE);
     }
 
@@ -205,7 +244,11 @@ static char *camera_fixup_setparams(int id, const char *settings, struct camera_
 #endif
 
     android::String8 strParams = params.flatten();
-    char *ret = strdup(strParams.string());
+    if (fixed_set_params[id]) {
+        free(fixed_set_params[id]);
+    }
+    fixed_set_params[id] = strdup(strParams.string());
+    char *ret = fixed_set_params[id];
 
     return ret;
 }
@@ -565,6 +608,16 @@ static int camera_device_open(const hw_module_t *module, const char *name,
 
         cameraid = atoi(name);
         num_cameras = gVendorModule->get_number_of_cameras();
+
+        if (!fixed_set_params) {
+            fixed_set_params = (char **)malloc(sizeof(char *) * num_cameras);
+            if (!fixed_set_params) {
+                ALOGE("fixed_set_params allocation fail");
+                rv = -ENOMEM;
+                goto fail;
+            }
+            memset(fixed_set_params, 0, sizeof(char *) * num_cameras);
+        }
 
         if (cameraid > num_cameras) {
             ALOGE("camera service provided cameraid out of bounds, "
