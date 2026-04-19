@@ -149,7 +149,7 @@ PRODUCT_COPY_FILES += \
     device/xiaomi/msm8660-common/configs/thermald.conf:system/etc/thermald.conf
 
 # Device uses high-density artwork where available
-PRODUCT_AAPT_CONFIG := normal hdpi
+PRODUCT_AAPT_CONFIG := normal
 PRODUCT_AAPT_PREF_CONFIG := hdpi
 
 # Common build properties
