@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+$(call inherit-product, device/xiaomi/msm8660-common/bcm_hcd.mk)
+
 # Qualcomm scripts
 PRODUCT_COPY_FILES += \
     device/xiaomi/msm8660-common/prebuilt/init.qcom.post_boot.sh:system/etc/init.qcom.post_boot.sh \
