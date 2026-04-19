@@ -125,6 +125,21 @@ static char *camera_fixup_getparams(int id, const char *settings)
             params.set(android::CameraParameters::KEY_SUPPORTED_FOCUS_MODES,
                     "auto,macro,fixed,continuous-video,face-priority");
         }
+
+        // Old msm8660 blobs crash in notifyROIEvent when newer camera apps
+        // enable face/ROI driven features on Marshmallow.
+        params.set("face-detection", "off");
+        params.set("face-detection-values", "off");
+        params.set("max-num-detected-faces-hw", "0");
+        if (params.get("max-num-detected-faces-sw")) {
+            params.set("max-num-detected-faces-sw", "0");
+        }
+        params.set("touch-af-aec", "touch-off");
+        params.set("touch-af-aec-values", "touch-off");
+        params.set(android::CameraParameters::KEY_MAX_NUM_FOCUS_AREAS, "0");
+        params.set(android::CameraParameters::KEY_MAX_NUM_METERING_AREAS, "0");
+        params.remove(android::CameraParameters::KEY_FOCUS_AREAS);
+        params.remove(android::CameraParameters::KEY_METERING_AREAS);
     }
 
     /* Front-Facing Camera */
@@ -181,6 +196,22 @@ static char *camera_fixup_setparams(int id, const char *settings, struct camera_
 
     if (params.get(android::CameraParameters::KEY_VIDEO_SIZE)) {
         videoSize = params.get(android::CameraParameters::KEY_VIDEO_SIZE);
+    }
+
+    if (!isVideo && strcmp(previewSize, "0x0")) {
+        // Snap/Camera2 keeps a non-zero video-size even for still preview.
+        // Legacy msm8660 blobs treat that as a record-stream request and
+        // become unstable once preview/ROI callbacks start.
+        params.set(android::CameraParameters::KEY_VIDEO_SIZE, previewSize);
+        videoSize = params.get(android::CameraParameters::KEY_VIDEO_SIZE);
+    }
+
+    if (id == 0) {
+        // Disable ROI/FD related features that crash the legacy blob on M.
+        params.set("face-detection", "off");
+        params.remove(android::CameraParameters::KEY_FOCUS_AREAS);
+        params.remove(android::CameraParameters::KEY_METERING_AREAS);
+        params.set("touch-af-aec", "touch-off");
     }
 
     needsPreviewRestart = false;
