@@ -47,7 +47,6 @@ PRODUCT_PACKAGES += \
     audio.usb.default \
     audio_policy.msm8660 \
     audio.primary.msm8660 \
-    audio_policy.conf \
     libaudioutils \
     libdashplayer \
     libaudio-resampler
@@ -82,7 +81,6 @@ PRODUCT_PACKAGES += \
     libstagefrighthw \
     libOmxQcelp13Enc \
     libOmxEvrcEnc \
-    libOmxAmrEnc \
     qcmediaplayer
 
 PRODUCT_BOOT_JARS += \
