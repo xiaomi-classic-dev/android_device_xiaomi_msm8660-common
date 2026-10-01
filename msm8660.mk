@@ -56,8 +56,7 @@ PRODUCT_PACKAGES += \
     libgenlock \
     libmemalloc \
     liboverlay \
-    libqdutils \
-    libtilerenderer
+    libqdutils
 
 # OMX
 PRODUCT_PACKAGES += \
