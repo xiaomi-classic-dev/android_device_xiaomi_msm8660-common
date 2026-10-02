@@ -30,6 +30,7 @@
 #define LOG_NDDEBUG 0
 
 #include <stdio.h>
+#include <stddef.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <ctype.h>
@@ -215,7 +216,19 @@ static int loc_eng_init(GpsCallbacks* callbacks)
 
    // Start the LOC api RPC service (if not started yet)
    loc_api_glue_init();
-   callbacks->set_capabilities_cb(GPS_CAPABILITY_SCHEDULING | GPS_CAPABILITY_MSA | GPS_CAPABILITY_MSB);
+   gps_request_utc_time request_utc_time_cb = NULL;
+   if (callbacks->size >= offsetof(GpsCallbacks, request_utc_time_cb) +
+                          sizeof(callbacks->request_utc_time_cb))
+   {
+      request_utc_time_cb = callbacks->request_utc_time_cb;
+   }
+   uint32_t capabilities = GPS_CAPABILITY_SCHEDULING | GPS_CAPABILITY_MSA |
+                           GPS_CAPABILITY_MSB;
+   if (request_utc_time_cb != NULL)
+   {
+      capabilities |= GPS_CAPABILITY_ON_DEMAND_TIME;
+   }
+   callbacks->set_capabilities_cb(capabilities);
    // Avoid repeated initialization. Call de-init to clean up first.
    if (loc_eng_inited == 1)
    {
@@ -238,6 +251,7 @@ static int loc_eng_init(GpsCallbacks* callbacks)
    loc_eng_data.nmea_cb      = callbacks->nmea_cb;
    loc_eng_data.acquire_wakelock_cb = callbacks->acquire_wakelock_cb;
    loc_eng_data.release_wakelock_cb = callbacks->release_wakelock_cb;
+   loc_eng_data.request_utc_time_cb = request_utc_time_cb;
 
    // Loc engine module data initialization
    loc_eng_data.engine_status = GPS_STATUS_NONE;
@@ -1432,7 +1446,15 @@ static void loc_eng_process_loc_event (rpc_loc_event_mask_type loc_event,
       if (loc_event_payload->rpc_loc_event_payload_u_type_u.assist_data_request.event ==
          RPC_LOC_ASSIST_DATA_TIME_REQ)
       {
-         LOC_LOGD("loc_event_cb: XTRA time download request... not supported");
+         if (loc_eng_data.request_utc_time_cb != NULL)
+         {
+            LOC_LOGD("loc_event_cb: requesting UTC time from framework");
+            loc_eng_data.request_utc_time_cb();
+         }
+         else
+         {
+            LOC_LOGW("loc_event_cb: no UTC time callback available");
+         }
       }
    }
 
