@@ -1118,6 +1118,11 @@ static void loc_eng_report_sv (const rpc_loc_gnss_info_s_type *gnss_report_ptr)
 
    num_svs_max = 0;
    memset (&SvStatus, 0, sizeof (GpsSvStatus));
+   SvStatus.size = sizeof(SvStatus);
+   if (!(gnss_report_ptr->valid_mask & RPC_LOC_GNSS_INFO_VALID_SV_COUNT))
+   {
+      return;
+   }
    if (gnss_report_ptr->valid_mask & RPC_LOC_GNSS_INFO_VALID_SV_COUNT)
    {
       num_svs_max = gnss_report_ptr->sv_count;
@@ -1129,16 +1134,25 @@ static void loc_eng_report_sv (const rpc_loc_gnss_info_s_type *gnss_report_ptr)
 
    if (gnss_report_ptr->valid_mask & RPC_LOC_GNSS_INFO_VALID_SV_LIST)
    {
+      if (num_svs_max > 0 && gnss_report_ptr->sv_list.sv_list_val == NULL)
+      {
+         LOC_LOGW("loc_eng_report_sv: missing satellite list\n");
+         return;
+      }
+      if ((unsigned)num_svs_max > gnss_report_ptr->sv_list.sv_list_len)
+      {
+         num_svs_max = gnss_report_ptr->sv_list.sv_list_len;
+      }
       SvStatus.num_svs = 0;
 
       for (i = 0; i < num_svs_max; i++)
       {
          sv_info_ptr = &(gnss_report_ptr->sv_list.sv_list_val[i]);
+         SvStatus.sv_list[SvStatus.num_svs].size = sizeof(GpsSvInfo);
          if (sv_info_ptr->valid_mask & RPC_LOC_SV_INFO_VALID_SYSTEM)
          {
             if (sv_info_ptr->system == RPC_LOC_SV_SYSTEM_GPS)
             {
-               SvStatus.sv_list[SvStatus.num_svs].size = sizeof(GpsSvStatus);
                SvStatus.sv_list[SvStatus.num_svs].prn = sv_info_ptr->prn;
 
                // We only have the data field to report gps eph and alm mask
@@ -1197,9 +1211,13 @@ static void loc_eng_report_sv (const rpc_loc_gnss_info_s_type *gnss_report_ptr)
          SvStatus.num_svs++;
       }
    }
+   else if (num_svs_max != 0)
+   {
+      return;
+   }
 
    // LOC_LOGD ("num_svs = %d, eph mask = %d, alm mask = %d\n", SvStatus.num_svs, SvStatus.ephemeris_mask, SvStatus.almanac_mask );
-   if ((SvStatus.num_svs != 0) && (loc_eng_data.sv_status_cb != NULL))
+   if (loc_eng_data.sv_status_cb != NULL)
    {
       loc_eng_data.sv_status_cb(&SvStatus);
    }

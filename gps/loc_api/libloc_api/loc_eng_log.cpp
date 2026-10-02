@@ -336,7 +336,8 @@ static void log_satellite_report(const rpc_loc_gnss_info_s_type *gnss)
       }
 
       int i;
-      for (i = 0; i < gnss->sv_count; i++)
+      for (i = 0; gnss->sv_list.sv_list_val != NULL &&
+                  i < gnss->sv_count && (unsigned)i < gnss->sv_list.sv_list_len; i++)
       {
          const rpc_loc_sv_info_s_type *sv = &gnss->sv_list.sv_list_val[i];
          rpc_loc_sv_info_valid_mask_type mask = sv->valid_mask;
