@@ -31,6 +31,7 @@
 
 #include <stdio.h>
 #include <stddef.h>
+#include <errno.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <ctype.h>
@@ -540,6 +541,7 @@ static int  loc_eng_set_position_mode(GpsPositionMode mode, GpsPositionRecurrenc
    LOC_LOGD ("loc_eng_set_position mode, client = %d, interval = %d, mode = %d\n",
             (int32) loc_eng_data.client_handle, min_interval, mode);
 
+   memset(&ioctl_data, 0, sizeof(ioctl_data));
    fix_criteria_ptr = &ioctl_data.rpc_loc_ioctl_data_u_type_u.fix_criteria;
 
    fix_criteria_ptr->valid_mask = RPC_LOC_FIX_CRIT_VALID_PREFERRED_OPERATION_MODE |
@@ -583,6 +585,7 @@ static int  loc_eng_set_position_mode(GpsPositionMode mode, GpsPositionRecurrenc
         /*If the framework passes in 0 transalate it into the maximum frequency we can report positions
           which is 1 Hz or once very second */
         fix_criteria_ptr->min_interval = MIN_POSSIBLE_FIX_INTERVAL;
+        fix_criteria_ptr->valid_mask |= RPC_LOC_FIX_CRIT_VALID_MIN_INTERVAL;
     }
     if (preferred_accuracy > 0) {
         fix_criteria_ptr->preferred_accuracy = preferred_accuracy;
@@ -612,6 +615,7 @@ static int  loc_eng_set_position_mode(GpsPositionMode mode, GpsPositionRecurrenc
    if (ret_val != TRUE)
    {
       LOC_LOGE("loc_eng_set_position mode failed\n");
+      return -EIO;
    }
 
    return 0;
@@ -659,6 +663,7 @@ static int loc_eng_inject_time(GpsUtcTime time, int64_t timeReference, int uncer
    if (ret_val != TRUE)
    {
       LOC_LOGE ("loc_eng_inject_time failed\n");
+      return -EIO;
    }
 
    return RPC_LOC_API_SUCCESS;
