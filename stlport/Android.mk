@@ -37,7 +37,7 @@ LOCAL_SRC_FILES := \
     src/allocators.cpp \
     src/c_locale.c \
     src/cxa.c
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/stlport bionic
+LOCAL_C_INCLUDES := device/xiaomi/msm8660-common/stlport/include $(LOCAL_PATH)/stlport bionic
 LOCAL_CFLAGS := -D_GNU_SOURCE
 LOCAL_CPPFLAGS := -fuse-cxa-atexit
 LOCAL_CXX_STL := libstdc++
