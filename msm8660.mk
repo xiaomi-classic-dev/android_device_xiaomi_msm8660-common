@@ -52,7 +52,7 @@ PRODUCT_PACKAGES += \
 
 # GPS
 PRODUCT_PACKAGES += \
-    gps.mione
+    gps.msm8660
 
 # Graphics
 PRODUCT_PACKAGES += \
