@@ -27,8 +27,6 @@
  *
  */
 
-#define LOG_NDDEBUG 0
-
 #include <stdio.h>
 #include <stddef.h>
 #include <errno.h>
