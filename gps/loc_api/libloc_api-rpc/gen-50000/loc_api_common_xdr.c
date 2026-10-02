@@ -304,7 +304,9 @@ xdr_rpc_loc_nmea_report_s_type (XDR *xdrs, rpc_loc_nmea_report_s_type *objp)
 	int i;
 	 if (!xdr_rpc_uint16 (xdrs, &objp->length))
 		 return FALSE;
-	 if (!xdr_opaque (xdrs, objp->nmea_sentences, 1200))
+	 if (objp->length > sizeof (objp->nmea_sentences))
+		 return FALSE;
+	 if (!xdr_opaque (xdrs, objp->nmea_sentences, sizeof (objp->nmea_sentences)))
 		 return FALSE;
 	return TRUE;
 }
@@ -1484,7 +1486,6 @@ xdr_rpc_loc_ioctl_data_u_type (XDR *xdrs, rpc_loc_ioctl_data_u_type *objp)
 			 return FALSE;
 		break;
 	case RPC_LOC_IOCTL_SEND_WIPER_POSITION_REPORT:
-	case RPC_LOC_EVENT_NMEA_1HZ_REPORT:
 		 if (!xdr_rpc_loc_wiper_position_report_s_type (xdrs, &objp->rpc_loc_ioctl_data_u_type_u.wiper_pos))
 			 return FALSE;
 		break;
@@ -1613,6 +1614,7 @@ xdr_rpc_loc_event_payload_u_type (XDR *xdrs, rpc_loc_event_payload_u_type *objp)
 			 return FALSE;
 		break;
 	case RPC_LOC_EVENT_NMEA_POSITION_REPORT:
+	case RPC_LOC_EVENT_NMEA_1HZ_REPORT:
 		 if (!xdr_rpc_loc_nmea_report_s_type (xdrs, &objp->rpc_loc_event_payload_u_type_u.nmea_report))
 			 return FALSE;
 		break;
