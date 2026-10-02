@@ -50,7 +50,7 @@
 // #define LOGD(...) {}
 
 #define LOC_XTRA_INJECT_DEFAULT_TIMEOUT (3100)
-#define XTRA_BLOCK_SIZE                 (1024)
+#define XTRA_BLOCK_SIZE                 (3072)
 
 static int qct_loc_eng_xtra_init (GpsXtraCallbacks* callbacks);
 static int qct_loc_eng_inject_xtra_data(char* data, int length);
@@ -162,6 +162,8 @@ static int qct_loc_eng_inject_xtra_data_one(char* data, int length)
             LOC_LOGE("loc_ioctl for xtra error: %s\n", loc_get_ioctl_status_name(rpc_ret_val));
             break;
          }
+         // Match the vendor HAL pacing so repeated RPC calls do not starve the modem.
+         usleep(10 * 1000);
       }
       else // part == total_parts
       {
